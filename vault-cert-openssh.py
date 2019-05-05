@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # OpenSSH certificate sign with Hashicorp Vault
+# https://github.com/yverry/vault-cert-openssh
 #
 # References:
 # - https://tools.ietf.org/html/rfc4251.html#section-5
@@ -89,26 +90,6 @@ rsaFormat = [
   (decodeString, "signature"),
 ]
 
-dsaFormat = [
-  (decodeString, ),
-  (decodeString, "nonce"),
-  (decodeMpint,  "p"),
-  (decodeMpint,  "q"),
-  (decodeMpint,  "g"),
-  (decodeMpint,  "y"),
-  (decodeUint64, "serial"),
-  (decodeUint32, "type"),
-  (decodeString, "key id"),
-  (decodeString, "valid principals"),
-  (decodeUint64, "valid after"),
-  (decodeUint64, "valid before"),
-  (decodeString, "critical options"),
-  (decodeString, "extensions"),
-  (decodeString, "reserved"),
-  (decodeString, "signature key"),
-  (decodeString, "signature"),
-]
-
 ecdsaFormat = [
   (decodeString, "nonce"),
   (decodeString, "curve"),
@@ -144,7 +125,6 @@ ed25519Format = [
 
 formats = {
   "ssh-rsa-cert-v01@openssh.com":        rsaFormat,
-  "ssh-dss-cert-v01@openssh.com":        dsaFormat,
   "ecdsa-sha2-nistp256-v01@openssh.com": ecdsaFormat,
   "ecdsa-sha2-nistp384-v01@openssh.com": ecdsaFormat,
   "ecdsa-sha2-nistp521-v01@openssh.com": ecdsaFormat,
