@@ -31,7 +31,7 @@ import time, os
 import base64
 from struct import unpack
 
-def vaultrenewkey(filename, vault_var):
+def vaultRenewKey(filename, vault_var):
     sshKey = filename.replace('-cert','')
     public_key = open(sshKey,'r')
     client = hvac.Client(url=vault_var['VAULT_ADDR'], token=vault_var['VAULT_TOKEN'])
@@ -162,13 +162,16 @@ if __name__ == "__main__":
     exit(1)
 
   if len(sys.argv) > 1:
-    with open(sys.argv[1],'r') as f:
-      key = Decode(f.read().split(" ")[1])
-      if int(time.time()) > key['valid before']:
-          print("Need to renew" + sys.argv[1])
-          vaultrenewkey(sys.argv[1],vault_var)
-      else:
-          print("Nothing to do")
+    try:
+      with open(sys.argv[1],'r') as f:
+        key = Decode(f.read().split(" ")[1])
+        if int(time.time()) > key['valid before']:
+            print("Need to renew" + sys.argv[1])
+            vaultRenewKey(sys.argv[1],vault_var)
+        else:
+            print("Nothing to do")
+    except FileNotFoundError:
+      vaultRenewKey(sys.argv[1],vault_var)
   else:
     print("Usage: %s [path to certificate]" % sys.argv[0])
     exit(1)

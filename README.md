@@ -20,4 +20,5 @@ python vault-cert-openssh.py ~/.ssh/<your SSH key>-cert.pub
 Prerequisite:
 * Python >=3.7
  * hvac
+ * pipreqs
 * Vault
