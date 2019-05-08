@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 #
 # OpenSSH certificate sign with Hashicorp Vault
-# https://github.com/yverry/vault-cert-openssh
+# - https://github.com/yverry/vault-cert-openssh
 #
 # References:
 # - https://tools.ietf.org/html/rfc4251.html#section-5
-# - http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/PROTOCOL.certkeys?annotate=HEAD
+# - https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/PROTOCOL.certkeys?annotate=HEAD
 # - https://gist.github.com/corny/8264b74a130eb663dbf3d3f0fe0e0ec9
-#
+
 
 
 import hvac
@@ -146,7 +146,12 @@ if __name__ == "__main__":
   if len(sys.argv) > 1:
     try:
       with open(sys.argv[1],'r') as f:
-        key = Decode(f.read().split(" ")[1])
+        try:
+          key = Decode(f.read().split(" ")[1])
+        except KeyError as e:
+          print('Unknown key type %s' % str(e))
+          os._exit(-1)
+
         if int(time.time()) > key['valid before']:
             print("Need to renew %s" % sys.argv[1])
             vaultRenewKey(sys.argv[1],vault)
