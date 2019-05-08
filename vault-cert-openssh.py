@@ -137,8 +137,11 @@ if __name__ == "__main__":
   except KeyError:
     from os.path import expanduser
     home = expanduser("~")
-    o = open(home + '/.vault-token','r')
-    vault['VAULT_TOKEN'] = o.read().splitlines()[0]
+    try:
+      o = open(home + '/.vault-token','r')
+      vault['VAULT_TOKEN'] = o.read().splitlines()[0]
+    except FileNotFoundError as e:
+      print('Error %s variable is missing' % str(e))
 
   if len(sys.argv) > 1:
     try:
