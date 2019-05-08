@@ -15,16 +15,20 @@ import time, os
 import base64
 from struct import unpack
 
-def vaultRenewKey(filename, vault_var):
+def vaultRenewKey(filename, vault):
     sshKey = filename.replace('-cert','')
-    public_key = open(sshKey,'r')
-    client = hvac.Client(url=vault_var['VAULT_ADDR'], token=vault_var['VAULT_TOKEN'])
-    renew = client.write(vault_var['VAULT_SSHSIGNPATH'],public_key=public_key.read())
+    try:
+      public_key = open(sshKey,'r')
+      client = hvac.Client(url=vault['VAULT_ADDR'], token=vault['VAULT_TOKEN'])
+      renew = client.write(vault['VAULT_SSHSIGNPATH'],public_key=public_key.read())
    
-    if len(renew['data']['signed_key']) > 0:
-      s = open(filename,'w')
-      s.write(renew['data']['signed_key'])
-      s.close()
+      if len(renew['data']['signed_key']) > 0:
+        s = open(filename,'w')
+        s.write(renew['data']['signed_key'])
+        s.close()
+    except FileNotFoundError:
+      print("OpenSSH Key (%s) is missing" % sshKey)
+      os._exit(-1)
 
 def Decode(base64encoded):
   certType, bin = decodeString(base64.b64decode(base64encoded))
@@ -120,33 +124,33 @@ formats = {
 
 if __name__ == "__main__":
   import sys
-  vault_var = dict()
+  vault = dict()
 
   try:
-    vault_var['VAULT_SSHSIGNPATH'] = os.environ['VAULT_SSHSIGNPATH']
-    vault_var['VAULT_ADDR'] = os.environ['VAULT_ADDR']
+    vault['VAULT_SSHSIGNPATH'] = os.environ['VAULT_SSHSIGNPATH']
+    vault['VAULT_ADDR'] = os.environ['VAULT_ADDR']
   except KeyError as e:
-    print('Error ' + str(e) + ' variable is missing')
+    print('Error %s variable is missing' % str(e))
 
   try:
-    vault_var['VAULT_TOKEN'] = os.environ['VAULT_TOKEN']
+    vault['VAULT_TOKEN'] = os.environ['VAULT_TOKEN']
   except KeyError:
     from os.path import expanduser
     home = expanduser("~")
     o = open(home + '/.vault-token','r')
-    vault_var['VAULT_TOKEN'] = o.read().splitlines()[0]
+    vault['VAULT_TOKEN'] = o.read().splitlines()[0]
 
   if len(sys.argv) > 1:
     try:
       with open(sys.argv[1],'r') as f:
         key = Decode(f.read().split(" ")[1])
         if int(time.time()) > key['valid before']:
-            print("Need to renew" + sys.argv[1])
-            vaultRenewKey(sys.argv[1],vault_var)
+            print("Need to renew %s" % sys.argv[1])
+            vaultRenewKey(sys.argv[1],vault)
         else:
             print("Nothing to do")
     except FileNotFoundError:
-      vaultRenewKey(sys.argv[1],vault_var)
+      vaultRenewKey(sys.argv[1],vault)
   else:
     print("Usage: %s [path to certificate]" % sys.argv[0])
     exit(1)
