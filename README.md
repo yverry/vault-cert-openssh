@@ -10,6 +10,11 @@ On your vault server you need to follow this documentation: https://www.vaultpro
 
 ### SSH Wrapper
 
+You need to setup three environment variables:
+* VAULT_SSHSIGNPATH
+* VAULT_ADDR
+* VAULT_TOKEN (if missing read ~/.vault-token file)
+
 Before each SSH connection add this wrapper command: 
 ```bash
 python vault-cert-openssh.py ~/.ssh/<your SSH key>-cert.pub
@@ -19,6 +24,6 @@ python vault-cert-openssh.py ~/.ssh/<your SSH key>-cert.pub
 
 Prerequisite:
 * Python >=3.7
- * hvac
- * pipreqs
+** hvac
+** pipreqs
 * Vault
