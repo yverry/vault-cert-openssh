@@ -154,11 +154,15 @@ if __name__ == "__main__":
 
         if int(time.time()) > key['valid before']:
             print("Need to renew %s" % sys.argv[1])
-            vaultRenewKey(sys.argv[1],vault)
-        else:
-            print("Nothing to do")
+            try:
+              vaultRenewKey(sys.argv[1],vault)
+            except hvac.exceptions.VaultDown:
+              print("Vault is sealed, unable to renew SSH Key")
     except FileNotFoundError:
-      vaultRenewKey(sys.argv[1],vault)
+      try:
+        vaultRenewKey(sys.argv[1],vault)
+      except hvac.exceptions.VaultDown:
+            print("Vault is sealed, unable to renew SSH Key")
   else:
     print("Usage: %s [path to certificate]" % sys.argv[0])
     exit(1)
