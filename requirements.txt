@@ -4,7 +4,7 @@ cryptography==3.3.2
 protobuf==3.7.1
 hvac==0.8.2
 ipaddr==2.2.0
-lxml==4.3.3
+lxml==4.6.3
 mock==3.0.4
 numpy==1.16.3
 ordereddict==1.1
